@@ -3,12 +3,13 @@ DISCORD_TOKEN = os.getenv("DISCORD_WORD_TOKEN")
 WORDNIK_API_KEY = os.getenv("WORDNIK_API_KEY")
 
 CHANNEL_ID = 1372420087268773979
-
 import discord
-from discord.ext import app_commands
+from discord import app_commands  # ✅ correct import
+from discord.ext import tasks  # ✅ for background loops
 import requests
 import re
 from datetime import datetime
+
   
 # === Discord Setup ===
 intents = discord.Intents.default()
@@ -69,6 +70,7 @@ async def wotd(interaction: discord.Interaction):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
