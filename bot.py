@@ -1,5 +1,5 @@
 import os
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = os.getenv("DISCORD_JOKE_TOKEN")
 import discord
 from discord import app_commands
 from discord.ext import tasks
@@ -68,5 +68,6 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
 
 
