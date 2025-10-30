@@ -45,7 +45,7 @@ async def on_ready():
 @tasks.loop(minutes=1)
 async def post_joke_of_day():
     now = datetime.now()
-    if now.hour == 9 and now.minute == 0:
+    if now.hour == 14 and now.minute == 0:
         channel = bot.get_channel(CHANNEL_ID)
         joke = fetch_joke()
         emote = random.choice(JOKE_EMOTES)
@@ -68,4 +68,5 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
 
