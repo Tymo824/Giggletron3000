@@ -55,19 +55,20 @@ async def post_word_of_day():
         word, definition = fetch_word_of_the_day()
         await channel.send(f"📚 **Word of the Day**: **{word}**\n{definition}")
 
-# --- Commands ---
-@bot.command()
-async def ping(ctx):
-    await ctx.send("🏓 Pong!")
+# --- Slash Commands ---
+@tree.command(name="ping", description="Check if the bot is online 🏓")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("🏓 Pong!")
 
-@bot.command()
-async def wotd(ctx):
-    """Manually fetch today’s Word of the Day."""
+@tree.command(name="wotd", description="Get today's Word of the Day 📚")
+async def wotd(interaction: discord.Interaction):
     word, definition = fetch_word_of_the_day()
-    await ctx.send(f"📚 **Word of the Day**: **{word}**\n{definition}")
+    await interaction.response.send_message(f"📚 **Word of the Day**: **{word}**\n{definition}")
+
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
