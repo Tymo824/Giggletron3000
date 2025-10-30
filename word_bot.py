@@ -1,19 +1,20 @@
 import os
 DISCORD_TOKEN = os.getenv("DISCORD_WORD_TOKEN")
-WORDNIK_API_KEY = os.getenv
+WORDNIK_API_KEY = os.getenv("WORDNIK_API_KEY")
 
 CHANNEL_ID = 1372420087268773979
 
 import discord
-from discord.ext import tasks, commands
+from discord.ext import app_commands
 import requests
 import re
 from datetime import datetime
+  
 # === Discord Setup ===
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="!", intents=intents)
-
+bot = discord.Client(intents=intents)
+tree = app_commands.CommandTree(bot)
 # --- Clean Wordnik HTML/markup ---
 def clean_definition(text: str) -> str:
     """Remove HTML tags and Wordnik markup."""
@@ -68,6 +69,7 @@ async def wotd(interaction: discord.Interaction):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
