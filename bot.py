@@ -1,11 +1,11 @@
 import os
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 import discord
 from discord import app_commands
 from discord.ext import tasks
 import requests
 import random
 from datetime import datetime
-
 # === CONFIGURE THESE ===
 CHANNEL_ID = 1423535719648989235  # replace with your channel ID
 
@@ -68,3 +68,4 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
