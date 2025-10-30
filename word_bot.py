@@ -1,5 +1,5 @@
 import os
-DISCORD_TOKEN = os.getenv
+DISCORD_TOKEN = os.getenv("DISCORD_WORD_TOKEN")
 WORDNIK_API_KEY = os.getenv
 
 CHANNEL_ID = 1372420087268773979
@@ -68,5 +68,6 @@ async def wotd(ctx):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
