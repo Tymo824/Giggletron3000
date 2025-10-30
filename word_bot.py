@@ -45,7 +45,8 @@ def fetch_word_of_the_day():
 @bot.event
 async def on_ready():
     print(f"✅ Logged in as {bot.user}")
-    post_word_of_day.start()
+    await tree.sync()  # 👈 this tells Discord to register your slash commands
+    print("🌐 Slash commands synced.")
 
 # --- Scheduled WOTD (9:00 AM) ---
 @tasks.loop(minutes=1)
@@ -70,6 +71,7 @@ async def wotd(interaction: discord.Interaction):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
