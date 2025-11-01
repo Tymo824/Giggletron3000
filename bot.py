@@ -111,24 +111,26 @@ async def roast(interaction: discord.Interaction, user: discord.Member = None):
 @app_commands.describe(amount="How many recent messages to fade out (default: 10).")
 @commands.has_permissions(manage_messages=True)
 async def fadeout(interaction: discord.Interaction, amount: int = 10):
+    """Deletes a specified number of recent messages — admin/mod only."""
+    # Defer response to prevent 404 errors
+    await interaction.response.defer(thinking=True, ephemeral=True)
+
     if not interaction.user.guild_permissions.manage_messages:
-        await interaction.response.send_message(
-            "🎸 *Demyx strums lazily.* 'Whoa there, rockstar. Only the band leaders get to fade the crowd out.'",
-            ephemeral=True
+        await interaction.followup.send(
+            "🎸 *Demyx strums lazily.* 'Whoa there, rockstar. Only the band leaders get to fade the crowd out.'"
         )
         return
 
     try:
         await interaction.channel.purge(limit=amount + 1)
-        await interaction.response.send_message(
-            f"🎶 *Demyx grins.* 'And just like that... {amount} messages fade into silence.'",
-            ephemeral=True
+        await interaction.followup.send(
+            f"🎶 *Demyx grins.* 'And just like that... {amount} messages fade into silence.'"
         )
     except Exception as e:
-        await interaction.response.send_message(
-            f"⚠️ *Demyx winces.* 'Something went flat — I couldn’t fade those out.'\n`{e}`",
-            ephemeral=True
+        await interaction.followup.send(
+            f"⚠️ *Demyx winces.* 'Something went flat — I couldn’t fade those out.'\n`{e}`"
         )
+
 
 @tree.command(name="soundcheck", description="Demyx does a soundcheck... eventually.")
 async def soundcheck(interaction: discord.Interaction):
@@ -180,3 +182,4 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
