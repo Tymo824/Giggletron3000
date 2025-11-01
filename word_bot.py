@@ -8,7 +8,7 @@ from discord import app_commands  # ✅ correct import
 from discord.ext import tasks  # ✅ for background loops
 import requests
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 import random
 
 # Riddle
@@ -296,7 +296,7 @@ ACTIVE_RIDDLES = {}
 # === Helper: Choose intro based on UTC time ===
 def get_zexion_intro():
     """Pick a Light or Dark intro depending on the time of day."""
-    now_utc = datetime.utcnow()
+    now_utc = datetime.now(timezone.utc)
     hour = now_utc.hour
 
     # Convert time: 11 AM–11 PM UTC = 6 AM–6 PM EST (Light)
@@ -354,7 +354,7 @@ async def on_ready():
 async def post_word_of_day():
     """Post Word of the Day at 9:00 AM EST (14:00 UTC)."""
     try:
-        now = datetime.utcnow()
+        now_utc = datetime.now(timezone.utc)
         print("⏰ Checking UTC time:", now)
         if now.hour == 14 and now.minute == 0:
             channel = bot.get_channel(CHANNEL_ID)
@@ -667,6 +667,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
