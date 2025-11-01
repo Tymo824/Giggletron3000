@@ -1,28 +1,41 @@
 import os
-DISCORD_TOKEN = os.getenv("DISCORD_JOKE_TOKEN")
-import os, requests, zipfile, io
-FFMPEG_PATH = os.path.join("bin", "ffmpeg.exe")
-import discord
-from discord import app_commands
-from discord.ext import tasks
-from discord.ext import commands
 import requests
+import zipfile
+import io
+import discord
+from discord import app_commands, FFmpegPCMAudio
+from discord.ext import tasks, commands
 import random
-from datetime import datetime, timezone
+from datetime import datetime
 import asyncio
+
+FFMPEG_PATH = os.path.join("bin", "ffmpeg.exe")
+
 def ensure_ffmpeg():
-    if not os.path.exists(FFMPEG_PATH):
-        print("Downloading ffmpeg...")
+    """Download ffmpeg.exe automatically if it's missing (for Windows use)."""
+    if os.name == "nt" and not os.path.exists(FFMPEG_PATH):
+        print("🎧 Downloading FFmpeg (first-time setup)...")
         os.makedirs("bin", exist_ok=True)
         url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
-        r = requests.get(url)
+        r = requests.get(url, timeout=60)
+        if r.status_code != 200:
+            print("⚠️ Failed to download FFmpeg!")
+            return
         z = zipfile.ZipFile(io.BytesIO(r.content))
+        exe_path = None
         for name in z.namelist():
             if name.endswith("ffmpeg.exe"):
-                z.extract(name, "bin")
-                os.rename(os.path.join("bin", name), FFMPEG_PATH)
+                exe_path = name
                 break
-        print("✅ ffmpeg ready!")
+        if exe_path:
+            z.extract(exe_path, "bin")
+            new_path = os.path.join("bin", "ffmpeg.exe")
+            os.rename(os.path.join("bin", exe_path), new_path)
+            print("✅ FFmpeg ready at:", new_path)
+        else:
+            print("⚠️ Could not find ffmpeg.exe inside the ZIP file.")
+    else:
+        print("✅ FFmpeg already available or not required on this OS.")
 
 ensure_ffmpeg()
 # === Demyx The Jokester Jokes ===
@@ -193,55 +206,39 @@ async def post_joke_of_day():
         if channel:
             await channel.send(f"😂 **Joke of the Day** 😂\n{joke}\n{emote}")
 
-@tree.command(name="play", description="Demyx joins your VC and plays a random sound clip 🎸")
+@tree.command(name="play", description="Demyx joins your VC and plays a random sound!")
 async def play(interaction: discord.Interaction):
     user = interaction.user
-
     if not user.voice or not user.voice.channel:
-        await interaction.response.send_message("🎸 *Demyx strums lazily.* 'Join a voice channel first, yeah?'")
+        await interaction.response.send_message("🎸 *Demyx strums his sitar lazily.* 'Uh... maybe join a voice channel first, yeah?'")
         return
 
-    channel = user.voice.channel
+    voice_channel = user.voice.channel
+    sound_dir = "sounds"
+    supported_formats = (".mp3", ".wav", ".ogg")
+
+    if not os.path.exists(sound_dir):
+        await interaction.response.send_message("🎶 *Demyx looks around.* 'Uh, my sound folder’s missing, man!'")
+        return
+
+    sound_files = [f for f in os.listdir(sound_dir) if f.endswith(supported_formats)]
+    if not sound_files:
+        await interaction.response.send_message("🎸 *Demyx shrugs.* 'No tracks to jam with, dude!'")
+        return
+
+    sound_file = random.choice(sound_files)
+    sound_path = os.path.join(sound_dir, sound_file)
+
     try:
-        vc = await channel.connect()
-    except discord.ClientException:
-        await interaction.response.send_message("🎶 *Demyx groans.* 'I’m already jamming somewhere else!'")
-        return
-    except Exception as e:
-        await interaction.response.send_message(f"⚠️ Couldn’t connect to VC: `{e}`")
-        return
-
-    try:
-        # Pick a random sound file from a local "sounds" folder
-        sounds_dir = "./sounds"
-        sound_files = [f for f in os.listdir(sounds_dir) if f.endswith(".mp3") or f.endswith(".wav")]
-
-        if not sound_files:
-            await interaction.response.send_message("🥁 *Demyx looks around.* 'No tunes found, man!'")
-            await vc.disconnect()
-            return
-
-        sound = random.choice(sound_files)
-        sound_path = os.path.join(sounds_dir, sound)
-
-        await interaction.response.send_message(f"🎶 *Demyx grins.* 'This one’s called **{sound}**!'")
-
-        # Play audio
-        vc.play(discord.FFmpegPCMAudio(sound_path))
-
+        vc = await voice_channel.connect()
+        await interaction.response.send_message(f"🎶 *Demyx pops into {voice_channel.name}.* 'Let’s jam!' 🎵 Now playing: `{sound_file}`")
+        vc.play(FFmpegPCMAudio(sound_path, executable=FFMPEG_PATH))
         while vc.is_playing():
             await asyncio.sleep(1)
-
-        await asyncio.sleep(2)
         await vc.disconnect()
-        await interaction.followup.send("🎤 *Demyx waves.* 'That’s enough jamming for now!'")
-
+        await interaction.followup.send("🎤 *Demyx waves.* 'Okay, okay, that’s enough music for now!'")
     except Exception as e:
-        await interaction.followup.send(f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'")
-        try:
-            await vc.disconnect()
-        except:
-            pass
+        await interaction.response.send_message(f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'")
 
 @tree.command(name="joke", description="Demyx tells a joke trying to be funny")
 async def joke(interaction: discord.Interaction):
@@ -404,6 +401,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
