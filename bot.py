@@ -230,15 +230,32 @@ async def play(interaction: discord.Interaction):
     sound_path = os.path.join(sound_dir, sound_file)
 
     try:
-        vc = await voice_channel.connect()
-        await interaction.response.send_message(f"🎶 *Demyx pops into {voice_channel.name}.* 'Let’s jam!' 🎵 Now playing: `{sound_file}`")
-       vc.play(FFmpegPCMAudio(sound_path))
-        while vc.is_playing():
-            await asyncio.sleep(1)
-        await vc.disconnect()
-        await interaction.followup.send("🎤 *Demyx waves.* 'Okay, okay, that’s enough music for now!'")
-    except Exception as e:
-        await interaction.response.send_message(f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'")
+    vc = await voice_channel.connect()
+    await interaction.response.send_message(
+        f"🎶 *Demyx pops into {voice_channel.name}.* 'Let’s jam!' 🎵 Now playing: `{sound_file}`"
+    )
+
+    # Make sure FFmpeg is detected
+    if not os.path.exists("bin/ffmpeg.exe") and os.name == "nt":
+        print("⚠️ FFmpeg not found — attempting to use system installation.")
+
+    source = FFmpegPCMAudio(sound_path)
+    vc.play(source)
+    print(f"🎵 Started playing: {sound_path}")
+
+    while vc.is_playing():
+        await asyncio.sleep(1)
+
+    print("✅ Finished playing, disconnecting...")
+    await vc.disconnect()
+    await interaction.followup.send("🎤 *Demyx waves.* 'Okay, okay, that’s enough music for now!'")
+
+except Exception as e:
+    print(f"⚠️ Playback error: {e}")
+    await interaction.response.send_message(
+        f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'"
+    )
+
 
 @tree.command(name="joke", description="Demyx tells a joke trying to be funny")
 async def joke(interaction: discord.Interaction):
@@ -401,6 +418,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
