@@ -209,8 +209,11 @@ async def post_joke_of_day():
 @tree.command(name="play", description="Demyx joins your VC and plays a random sound!")
 async def play(interaction: discord.Interaction):
     user = interaction.user
+
     if not user.voice or not user.voice.channel:
-        await interaction.response.send_message("🎸 *Demyx strums his sitar lazily.* 'Uh... maybe join a voice channel first, yeah?'")
+        await interaction.response.send_message(
+            "🎸 *Demyx strums his sitar lazily.* 'Uh... maybe join a voice channel first, yeah?'"
+        )
         return
 
     voice_channel = user.voice.channel
@@ -218,43 +221,49 @@ async def play(interaction: discord.Interaction):
     supported_formats = (".mp3", ".wav", ".ogg")
 
     if not os.path.exists(sound_dir):
-        await interaction.response.send_message("🎶 *Demyx looks around.* 'Uh, my sound folder’s missing, man!'")
+        await interaction.response.send_message(
+            "🎶 *Demyx looks around.* 'Uh, my sound folder’s missing, man!'"
+        )
         return
 
     sound_files = [f for f in os.listdir(sound_dir) if f.endswith(supported_formats)]
     if not sound_files:
-        await interaction.response.send_message("🎸 *Demyx shrugs.* 'No tracks to jam with, dude!'")
+        await interaction.response.send_message(
+            "🎸 *Demyx shrugs.* 'No tracks to jam with, dude!'"
+        )
         return
 
     sound_file = random.choice(sound_files)
     sound_path = os.path.join(sound_dir, sound_file)
 
     try:
-    vc = await voice_channel.connect()
-    await interaction.response.send_message(
-        f"🎶 *Demyx pops into {voice_channel.name}.* 'Let’s jam!' 🎵 Now playing: `{sound_file}`"
-    )
+        vc = await voice_channel.connect()
+        await interaction.response.send_message(
+            f"🎶 *Demyx pops into {voice_channel.name}.* 'Let’s jam!' 🎵 Now playing: `{sound_file}`"
+        )
 
-    # Make sure FFmpeg is detected
-    if not os.path.exists("bin/ffmpeg.exe") and os.name == "nt":
-        print("⚠️ FFmpeg not found — attempting to use system installation.")
+        # Make sure FFmpeg is detected
+        if not os.path.exists("bin/ffmpeg.exe") and os.name == "nt":
+            print("⚠️ FFmpeg not found — attempting to use system installation.")
 
-    source = FFmpegPCMAudio(sound_path)
-    vc.play(source)
-    print(f"🎵 Started playing: {sound_path}")
+        source = FFmpegPCMAudio(sound_path)
+        vc.play(source)
+        print(f"🎵 Started playing: {sound_path}")
 
-    while vc.is_playing():
-        await asyncio.sleep(1)
+        while vc.is_playing():
+            await asyncio.sleep(1)
 
-    print("✅ Finished playing, disconnecting...")
-    await vc.disconnect()
-    await interaction.followup.send("🎤 *Demyx waves.* 'Okay, okay, that’s enough music for now!'")
+        print("✅ Finished playing, disconnecting...")
+        await vc.disconnect()
+        await interaction.followup.send(
+            "🎤 *Demyx waves.* 'Okay, okay, that’s enough music for now!'"
+        )
 
-except Exception as e:
-    print(f"⚠️ Playback error: {e}")
-    await interaction.response.send_message(
-        f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'"
-    )
+    except Exception as e:
+        print(f"⚠️ Playback error: {e}")
+        await interaction.response.send_message(
+            f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'"
+        )
 
 
 @tree.command(name="joke", description="Demyx tells a joke trying to be funny")
@@ -418,6 +427,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
