@@ -194,29 +194,30 @@ async def play(interaction: discord.Interaction):
         await interaction.response.send_message(f"⚠️ Couldn’t connect to VC: `{e}`")
         return
 
-    # Pick a random sound file from a local "sounds" folder
-    sounds_dir = "./sounds"
-    sound_files = [f for f in os.listdir(sounds_dir) if f.endswith(".mp3") or f.endswith(".wav")]
+    try:
+        # Pick a random sound file from a local "sounds" folder
+        sounds_dir = "./sounds"
+        sound_files = [f for f in os.listdir(sounds_dir) if f.endswith(".mp3") or f.endswith(".wav")]
 
-    if not sound_files:
-        await interaction.response.send_message("🥁 *Demyx looks around.* 'No tunes found, man!'")
+        if not sound_files:
+            await interaction.response.send_message("🥁 *Demyx looks around.* 'No tunes found, man!'")
+            await vc.disconnect()
+            return
+
+        sound = random.choice(sound_files)
+        sound_path = os.path.join(sounds_dir, sound)
+
+        await interaction.response.send_message(f"🎶 *Demyx grins.* 'This one’s called **{sound}**!'")
+
+        # Play audio
+        vc.play(discord.FFmpegPCMAudio(sound_path))
+
+        while vc.is_playing():
+            await asyncio.sleep(1)
+
+        await asyncio.sleep(2)
         await vc.disconnect()
-        return
-
-    sound = random.choice(sound_files)
-    sound_path = os.path.join(sounds_dir, sound)
-
-    await interaction.response.send_message(f"🎶 *Demyx grins.* 'This one’s called **{sound}**!'")
-
-    # Play audio
-    vc.play(discord.FFmpegPCMAudio(sound_path))
-
-    while vc.is_playing():
-        await asyncio.sleep(1)
-
-    await asyncio.sleep(2)
-    await vc.disconnect()
-    await interaction.followup.send("🎤 *Demyx waves.* 'That’s enough jamming for now!'")
+        await interaction.followup.send("🎤 *Demyx waves.* 'That’s enough jamming for now!'")
 
     except Exception as e:
         await interaction.followup.send(f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'")
@@ -386,6 +387,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
