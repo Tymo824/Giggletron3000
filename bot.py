@@ -377,13 +377,14 @@ async def ping(interaction: discord.Interaction):
 
 
 if __name__ == "__main__":
-    DISCORD_TOKEN = os.getenv("DISCORD_JOKE_TOKEN")
+    DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
     if not DISCORD_TOKEN:
         print("Missing DISCORD_JOKE_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
