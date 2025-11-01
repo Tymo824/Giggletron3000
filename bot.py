@@ -232,7 +232,7 @@ async def play(interaction: discord.Interaction):
     try:
         vc = await voice_channel.connect()
         await interaction.response.send_message(f"🎶 *Demyx pops into {voice_channel.name}.* 'Let’s jam!' 🎵 Now playing: `{sound_file}`")
-        vc.play(FFmpegPCMAudio(sound_path, executable=FFMPEG_PATH))
+       vc.play(FFmpegPCMAudio(sound_path))
         while vc.is_playing():
             await asyncio.sleep(1)
         await vc.disconnect()
@@ -401,6 +401,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
