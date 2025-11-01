@@ -270,6 +270,7 @@ async def fadeout(interaction: discord.Interaction, amount: int = 10):
         await interaction.response.send_message(f"🎶 *Demyx grins.* 'And just like that... {amount} messages fade into silence.'", ephemeral=True)
     except Exception as e:
         await interaction.response.send_message(f"⚠️ *Demyx winces.* 'Something went flat — I couldn’t fade those out.'\n`{e}`", ephemeral=True)   
+
 @tree.command(name="soundcheck", description="Demyx does a soundcheck... eventually.")
 async def soundcheck(interaction: discord.Interaction):
     # Demyx's self-answering "trivia" rants
@@ -318,6 +319,7 @@ async def soundcheck(interaction: discord.Interaction):
     lines = random.sample(demyx_bits, k=3)
     performance = f"{opener}\n\n" + "\n".join(lines) + "\n\n🎶 Soundcheck complete — nailed it (probably)."
     await interaction.response.send_message(performance)
+
 
 @tree.command(name="setlist", description="🎸 Demyx shows off his full command setlist!")
 async def setlist(interaction: discord.Interaction):
@@ -382,6 +384,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
