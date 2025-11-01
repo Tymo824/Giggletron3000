@@ -16,7 +16,7 @@ def ensure_ffmpeg():
     if os.name == "nt" and not os.path.exists(FFMPEG_PATH):
         print("🎧 Downloading FFmpeg (first-time setup)...")
         os.makedirs("bin", exist_ok=True)
-        url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+       url = "https://github.com/eugeneware/ffmpeg-static/releases/download/b5.0.1/ffmpeg-win64-v5.0.1.zip"
         r = requests.get(url, timeout=60)
         if r.status_code != 200:
             print("⚠️ Failed to download FFmpeg!")
@@ -418,6 +418,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
