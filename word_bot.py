@@ -541,7 +541,7 @@ async def insight(interaction: discord.Interaction):
 @tree.command(name="etymology", description="Zexion reveals the origin of a word — tracing its roots through time.")
 @app_commands.describe(word="The word you want Zexion to analyze.")
 async def etymology(interaction: discord.Interaction, word: str):
-    """Fetches and displays a word's etymology from Wordnik."""
+    """Fetches and cleans a word's etymology from Wordnik."""
     try:
         url = f"https://api.wordnik.com/v4/word.json/{word}/etymologies"
         params = {"api_key": WORDNIK_API_KEY}
@@ -550,24 +550,27 @@ async def etymology(interaction: discord.Interaction, word: str):
         if response.status_code == 200:
             data = response.json()
             if data:
-                # Clean and format
                 raw_etymology = data[0]
-                cleaned = re.sub(r"<.*?>", "", raw_etymology).strip()
+
+                # Clean up Wordnik's weird HTML and legacy notation
+                cleaned = re.sub(r"<.*?>", "", raw_etymology)           # remove HTML tags
+                cleaned = re.sub(r"\[.*?\]", "", cleaned)               # remove [AS. le√≥ht.] or [L. ...]
+                cleaned = re.sub(r"See .*?\.", "", cleaned)             # remove "See Light, n." type endings
+                cleaned = re.sub(r"√≥", "g", cleaned)                   # fix encoding glitch
+                cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()       # collapse extra spaces
+
+                if not cleaned:
+                    cleaned = "Etymology data was found but could not be properly formatted."
+
                 await interaction.response.send_message(
                     f"📜 *Zexion opens the ancient lexicon...*\n**{word.capitalize()}** — {cleaned}"
                 )
             else:
-                await interaction.response.send_message(
-                    f"❌ No etymology found for **{word}**."
-                )
+                await interaction.response.send_message(f"❌ No etymology found for **{word}**.")
         else:
-            await interaction.response.send_message(
-                f"⚠️ Could not fetch etymology for **{word}**."
-            )
+            await interaction.response.send_message(f"⚠️ Could not fetch etymology for **{word}**.")
     except Exception as e:
-        await interaction.response.send_message(
-            f"❌ An error occurred: {e}"
-        )
+        await interaction.response.send_message(f"❌ An error occurred: {e}")
 
 # Mood (Light / Dark)
 @tree.command(name="mood", description="Zexion reveals whether it is Light or Dark hour.")
@@ -609,6 +612,7 @@ async def reflect(interaction: discord.Interaction):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
