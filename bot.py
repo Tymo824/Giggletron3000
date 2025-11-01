@@ -176,45 +176,47 @@ async def post_joke_of_day():
         if channel:
             await channel.send(f"😂 **Joke of the Day** 😂\n{joke}\n{emote}")
 
-
-@tree.command(name="play", description="Demyx joins your VC and plays a soundboard clip!")
+@tree.command(name="play", description="Demyx joins your VC and plays a random sound clip 🎸")
 async def play(interaction: discord.Interaction):
-    """Demyx joins the user's voice channel, plays a random sound, and leaves after 10 seconds."""
     user = interaction.user
 
-    # Check if user is in a voice channel
     if not user.voice or not user.voice.channel:
-        await interaction.response.send_message("🎸 *Demyx strums his sitar lazily.* 'Uh... maybe join a voice channel first, yeah?'")
+        await interaction.response.send_message("🎸 *Demyx strums lazily.* 'Join a voice channel first, yeah?'")
         return
 
-    voice_channel = user.voice.channel
-
-    # Connect to the voice channel
+    channel = user.voice.channel
     try:
-        vc = await voice_channel.connect()
+        vc = await channel.connect()
     except discord.ClientException:
-        await interaction.response.send_message("🎸 *Demyx blinks.* 'I’m already jamming somewhere else!'")
+        await interaction.response.send_message("🎶 *Demyx groans.* 'I’m already jamming somewhere else!'")
         return
     except Exception as e:
-        await interaction.response.send_message(f"⚠️ *Demyx fumbles with his sitar.* 'Uh... I couldn’t connect there. ({e})'")
+        await interaction.response.send_message(f"⚠️ Couldn’t connect to VC: `{e}`")
         return
 
-    await interaction.response.send_message(f"🎶 *Demyx grins and pops into {voice_channel.name}.* 'Let’s jam for a sec!'")
+    # Pick a random sound file from a local "sounds" folder
+    sounds_dir = "./sounds"
+    sound_files = [f for f in os.listdir(sounds_dir) if f.endswith(".mp3") or f.endswith(".wav")]
 
-    try:
-        # Fetch soundboard sounds from the guild
-        sounds = await interaction.guild.fetch_soundboard_sounds()
-        if not sounds:
-            await interaction.followup.send("🥁 *Demyx looks around.* 'No soundboard sounds here? Bummer.'")
-        else:
-            sound = random.choice(sounds)
-            await sound.play(voice_channel)
-            await interaction.followup.send(f"🎸 *Demyx plays:* **{sound.name}**")
-
-        # Wait 10 seconds then disconnect
-        await asyncio.sleep(10)
+    if not sound_files:
+        await interaction.response.send_message("🥁 *Demyx looks around.* 'No tunes found, man!'")
         await vc.disconnect()
-        await interaction.followup.send("🎤 *Demyx waves.* 'Okay, okay, that’s enough music for now!'")
+        return
+
+    sound = random.choice(sound_files)
+    sound_path = os.path.join(sounds_dir, sound)
+
+    await interaction.response.send_message(f"🎶 *Demyx grins.* 'This one’s called **{sound}**!'")
+
+    # Play audio
+    vc.play(discord.FFmpegPCMAudio(sound_path))
+
+    while vc.is_playing():
+        await asyncio.sleep(1)
+
+    await asyncio.sleep(2)
+    await vc.disconnect()
+    await interaction.followup.send("🎤 *Demyx waves.* 'That’s enough jamming for now!'")
 
     except Exception as e:
         await interaction.followup.send(f"⚠️ *Demyx scratches his head.* 'Something went wrong playing the sound. ({e})'")
@@ -384,6 +386,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
