@@ -229,6 +229,33 @@ async def joke(interaction: discord.Interaction):
     emote = random.choice(JOKE_EMOTES)
     await interaction.response.send_message(f"😂 **Random Joke** 😂\n{joke_text}\n{emote}")
 
+@tree.command(name="roast", description="Demyx roasts someone brutally 🔥")
+@app_commands.describe(user="Mention the user you want Demyx to roast")
+async def roast(interaction: discord.Interaction, user: discord.Member = None):
+    target = user.mention if user else interaction.user.mention
+
+    # 5% chance that Demyx roasts himself instead
+    if random.randint(1, 20) == 1:
+        self_roasts = [
+            "Guess what? I just insulted myself in tune. That’s talent, baby!",
+            "Wow... I can’t believe I said that out loud. My therapist’s gonna love this one.",
+            "Dang, I just burned myself harder than Axel ever could.",
+            "You know you’ve hit rock bottom when your own jokes start hurting you.",
+            "...Okay, that one actually stung a bit. Even for me."
+        ]
+        roast_line = random.choice(self_roasts)
+        await interaction.response.send_message(
+            f":DemyxRoast: *Demyx winces mid-strum.*\n{roast_line}"
+        )
+        return
+
+    # Normal roast with mention
+    roast_line = random.choice(DEMYX_ROASTS)
+    await interaction.response.send_message(
+        f":DemyxRoast: *Demyx smirks and strums his sitar...*\n{target}, {roast_line}"
+    )
+
+
 @tree.command(name="fadeout", description="Demyx clears the chat — like a melody fading away.")
 @app_commands.describe(amount="How many recent messages to fade out (default: 10).")
 @commands.has_permissions(manage_messages=True)
@@ -242,74 +269,120 @@ async def fadeout(interaction: discord.Interaction, amount: int = 10):
         await interaction.channel.purge(limit=amount + 1)
         await interaction.response.send_message(f"🎶 *Demyx grins.* 'And just like that... {amount} messages fade into silence.'", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"⚠️ *Demyx winces.* 'Something went flat — I couldn’t fade those out.'\n`{e}`", ephemeral=True)
+        await interaction.response.send_message(f"⚠️ *Demyx winces.* 'Something went flat — I couldn’t fade those out.'\n`{e}`", ephemeral=True)   
+@tree.command(name="soundcheck", description="Demyx does a soundcheck... eventually.")
+async def soundcheck(interaction: discord.Interaction):
+    # Demyx's self-answering "trivia" rants
+    demyx_bits = [
+        "🎶 You ever notice how everyone’s always fighting and I’m just—vibing? Yeah. That’s balance, baby.",
+        "💧 Is it really procrastination if I *intend* to do it later? Thought so.",
+        "🎸 What’s the secret to sounding good? Easy — just play loud enough that nobody can tell you missed a note.",
+        "😴 Why rehearse when you can just *feel* the music? …Or nap. Napping works too.",
+        "🎤 Who needs a heart when you’ve got rhythm? Well, okay, hearts are nice too, but rhythm’s less dramatic.",
+        "🎵 You ever think about how water has no shape, but still *flows*? Kinda like my work ethic.",
+        "💦 What’s my warmup routine? Oh, you mean pretending to tune the sitar while stalling? Classic.",
+        "🎶 Why fight Heartless when you can drown them in good vibes? Oh wait—Xemnas said that’s not ‘productive.’",
+        "🎸 You know, some people train for years to master their craft. Me? I wing it and hope the audience’s standards are low.",
+        "🎤 Do I take requests? Yeah — requests to stop talking, usually.",
+        "🎵 Ever try to play a song underwater? Don’t. Just trust me on that one.",
+        "💧 They say ‘music heals the heart.’ Cool, guess I’m a doctor now!",
+        "🎶 Every day’s a performance, right? Mine just has… fewer people clapping.",
+        "🎸 Can’t spell ‘melodious’ without ‘me.’ Well, you can, but it’s not as fun.",
+        "🎤 I asked Xigbar to be my hype man once. He said I needed fans first. Rude."
+    ]
 
-    @app_commands.command(name="soundcheck", description="Demyx does a soundcheck... eventually.")
-    async def soundcheck(self, interaction: discord.Interaction):
-        # Demyx's self-answering "trivia" rants
-        demyx_bits = [
-            "🎶 You ever notice how everyone’s always fighting and I’m just—vibing? Yeah. That’s balance, baby.",
-            "💧 Is it really procrastination if I *intend* to do it later? Thought so.",
-            "🎸 What’s the secret to sounding good? Easy — just play loud enough that nobody can tell you missed a note.",
-            "😴 Why rehearse when you can just *feel* the music? …Or nap. Napping works too.",
-            "🎤 Who needs a heart when you’ve got rhythm? Well, okay, hearts are nice too, but rhythm’s less dramatic.",
-            "🎵 You ever think about how water has no shape, but still *flows*? Kinda like my work ethic.",
-            "💦 What’s my warmup routine? Oh, you mean pretending to tune the sitar while stalling? Classic.",
-            "🎶 Why fight Heartless when you can drown them in good vibes? Oh wait—Xemnas said that’s not ‘productive.’",
-            "🎸 You know, some people train for years to master their craft. Me? I wing it and hope the audience’s standards are low.",
-            "🎤 Do I take requests? Yeah — requests to stop talking, usually.",
-            "🎵 Ever try to play a song underwater? Don’t. Just trust me on that one.",
-            "💧 They say ‘music heals the heart.’ Cool, guess I’m a doctor now!",
-            "🎶 Every day’s a performance, right? Mine just has… fewer people clapping.",
-            "🎸 Can’t spell ‘melodious’ without ‘me.’ Well, you can, but it’s not as fun.",
-            "🎤 I asked Xigbar to be my hype man once. He said I needed fans first. Rude."
-        ]
+    banter_openers = [
+        "🎤 Alright, alright… let’s get this soundcheck rolling!",
+        "🎶 Testing, testing... okay, yeah, still awesome.",
+        "💦 Is this thing on? Oh, right, it’s *me* — so yeah, obviously it is.",
+        "🎸 Time for another world-class performance nobody asked for!",
+        "😎 Ladies, gents, and Nobodies — Demyx in the house!"
+    ]
 
-        banter_openers = [
-            "🎤 Alright, alright… let’s get this soundcheck rolling!",
-            "🎶 Testing, testing... okay, yeah, still awesome.",
-            "💦 Is this thing on? Oh, right, it’s *me* — so yeah, obviously it is.",
-            "🎸 Time for another world-class performance nobody asked for!",
-            "😎 Ladies, gents, and Nobodies — Demyx in the house!"
-        ]
+    lazy_excuses = [
+        "😴 Ehh, you know what? Not today. The vibes aren’t aligned.",
+        "💤 Soundcheck canceled — my inspiration just… evaporated.",
+        "💧 Sorry, can’t. My sitar’s emotionally unavailable right now.",
+        "🎸 Soundcheck? Nah, too mainstream.",
+        "🙃 Let’s skip it. I’m on my break. Again.",
+        "😪 I'm too tired for you, ask me when I feel like answering.\n*...which could be never 😴*"
+    ]
 
-       lazy_excuses = [
-            "😴 Ehh, you know what? Not today. The vibes aren’t aligned.",
-            "💤 Soundcheck canceled — my inspiration just… evaporated.",
-            "💧 Sorry, can’t. My sitar’s emotionally unavailable right now.",
-            "🎸 Soundcheck? Nah, too mainstream.",
-            "🙃 Let’s skip it. I’m on my break. Again.",
-            "😪 I'm too tired for you, ask me when I feel like answering.\n*...which could be never 😴*"
-        ]
+    # 1-in-5 chance Demyx refuses to do anything
+    if random.randint(1, 5) == 1:
+        excuse = random.choice(lazy_excuses)
+        await interaction.response.send_message(excuse)
+        return
 
-        # 1-in-5 chance Demyx refuses to do anything
-        if random.randint(1, 5) == 1:
-            excuse = random.choice(lazy_excuses)
-            await interaction.response.send_message(excuse)
-            return
+    opener = random.choice(banter_openers)
+    lines = random.sample(demyx_bits, k=3)
+    performance = f"{opener}\n\n" + "\n".join(lines) + "\n\n🎶 Soundcheck complete — nailed it (probably)."
+    await interaction.response.send_message(performance)
 
-        opener = random.choice(banter_openers)
-        lines = random.sample(demyx_bits, k=3)
-        performance = f"{opener}\n\n" + "\n".join(lines) + "\n\n🎶 Soundcheck complete — nailed it (probably)."
+@tree.command(name="setlist", description="🎸 Demyx shows off his full command setlist!")
+async def setlist(interaction: discord.Interaction):
+    """Displays all available Demyx commands in a fun, musical format."""
+    embed = discord.Embed(
+        title="🎵 Demyx’s Setlist 🎵",
+        description="Here’s what Demyx can do when he’s *in the groove!*",
+        color=discord.Color.teal()  # Aqua/turquoise theme for Demyx
+    )
 
-        await interaction.response.send_message(performance)
+    embed.add_field(
+        name="🎶 /play",
+        value="Demyx joins your voice channel and plays a random soundboard clip.",
+        inline=False
+    )
+    embed.add_field(
+        name="😂 /joke",
+        value="Demyx tells a random joke — whether it’s funny or not is debatable.",
+        inline=False
+    )
+    embed.add_field(
+        name="🔥 /roast",
+        value="Demyx roasts you or a tagged user mercilessly. 5% chance he roasts himself instead.",
+        inline=False
+    )
+    embed.add_field(
+        name="💨 /fadeout",
+        value="Moderators only — clears a number of recent messages, like a melody fading away.",
+        inline=False
+    )
+    embed.add_field(
+        name="🎸 /soundcheck",
+        value="Demyx rambles through his random music-flavored wisdom.",
+        inline=False
+    )
+    embed.add_field(
+        name="🏓 /ping",
+        value="Check if Demyx is alive and jamming.",
+        inline=False
+    )
 
-async def setup(bot):
-    await bot.add_cog(Soundcheck(bot))
+    embed.add_field(
+        name="📅 Bonus:",
+        value="Demyx also posts a new joke every morning at **9 AM sharp!** ☀️",
+        inline=False
+    )
+
+    embed.set_footer(text="💧 Stay hydrated, stay lazy — Demyx out!")
+    await interaction.response.send_message(embed=embed)
+
 
 @tree.command(name="ping", description="Check if the bot is alive")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("Dance Watah Dance")
 
+
 if __name__ == "__main__":
-    DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+    DISCORD_TOKEN = os.getenv("DISCORD_JOKE_TOKEN")
     if not DISCORD_TOKEN:
-        print("Missing DISCORD_TOKEN environment variable.")
+        print("Missing DISCORD_JOKE_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
 
-
         
+
 
 
 
