@@ -541,7 +541,7 @@ async def insight(interaction: discord.Interaction):
 @tree.command(name="etymology", description="Zexion reveals the origin of a word — tracing its roots through time.")
 @app_commands.describe(word="The word you want Zexion to analyze.")
 async def etymology(interaction: discord.Interaction, word: str):
-    """Fetches and cleans a word's etymology from Wordnik."""
+    """Fetches, cleans, and presents a word's etymology with poetic flavor."""
     try:
         url = f"https://api.wordnik.com/v4/word.json/{word}/etymologies"
         params = {"api_key": WORDNIK_API_KEY}
@@ -552,25 +552,47 @@ async def etymology(interaction: discord.Interaction, word: str):
             if data:
                 raw_etymology = data[0]
 
-                # Clean up Wordnik's weird HTML and legacy notation
-                cleaned = re.sub(r"<.*?>", "", raw_etymology)           # remove HTML tags
-                cleaned = re.sub(r"\[.*?\]", "", cleaned)               # remove [AS. le√≥ht.] or [L. ...]
-                cleaned = re.sub(r"See .*?\.", "", cleaned)             # remove "See Light, n." type endings
-                cleaned = re.sub(r"√≥", "g", cleaned)                   # fix encoding glitch
-                cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()       # collapse extra spaces
+                # 🧹 Clean raw text
+                cleaned = re.sub(r"<.*?>", "", raw_etymology)             # remove HTML tags
+                cleaned = re.sub(r"\[.*?\]", "", cleaned)                 # remove [AS. le√≥ht.] or [L. ...]
+                cleaned = re.sub(r"See .*?\.", "", cleaned)               # remove "See Light, n." type endings
+                cleaned = re.sub(r"√≥", "g", cleaned)                     # fix encoding glitch
+                cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()         # clean spacing
 
-                if not cleaned:
-                    cleaned = "Etymology data was found but could not be properly formatted."
+                # 🧙‍♂️ If cleaned is too short or unclear, fallback line
+                if not cleaned or len(cleaned.split()) < 3:
+                    cleaned = "The origin of this word has been obscured by time — even the lexicon whispers uncertainty."
 
-                await interaction.response.send_message(
-                    f"📜 *Zexion opens the ancient lexicon...*\n**{word.capitalize()}** — {cleaned}"
-                )
+                # 🎭 Zexion’s poetic variants
+                intros = [
+                    f"📜 *Zexion adjusts his spectacles and flips through his lexicon...* 'Ah, {word.capitalize()}... its origin is quite fascinating.'",
+                    f"🔮 *Within the quiet of the archives, Zexion murmurs:* 'Let us trace the roots of **{word.capitalize()}** through the corridors of language.'",
+                    f"📖 *Pages flutter as Zexion turns them slowly.* 'Every word carries a memory — and **{word.capitalize()}** is no exception.'",
+                    f"🌒 *Zexion’s voice echoes softly in the dark hall.* 'Once, long ago, **{word.capitalize()}** took shape from ancient tongues...'",
+                    f"🕯️ *By candlelight, Zexion muses:* 'Even words have ancestry. Observe the path of **{word.capitalize()}**.'"
+                ]
+
+                outro_lines = [
+                    "Such origins remind us that meaning, like light, changes with time.",
+                    "Even the simplest word may carry centuries of transformation.",
+                    "Its history mirrors the shifting balance between memory and meaning.",
+                    "The lexicon never forgets — it merely waits to be read again.",
+                    "Knowledge endures, even when the tongues that spoke it have long since fallen silent."
+                ]
+
+                intro = random.choice(intros)
+                outro = random.choice(outro_lines)
+
+                # 🕯️ Final message
+                message = f"{intro}\n\n**Etymology:** {cleaned}\n\n_{outro}_"
+                await interaction.response.send_message(message)
             else:
                 await interaction.response.send_message(f"❌ No etymology found for **{word}**.")
         else:
             await interaction.response.send_message(f"⚠️ Could not fetch etymology for **{word}**.")
     except Exception as e:
         await interaction.response.send_message(f"❌ An error occurred: {e}")
+
 
 # Mood (Light / Dark)
 @tree.command(name="mood", description="Zexion reveals whether it is Light or Dark hour.")
@@ -610,8 +632,42 @@ async def reflect(interaction: discord.Interaction):
     ]
     await interaction.response.send_message(random.choice(lines))
 
+@tree.command(name="wipe", description="Zexion erases traces of past words — only those of authority may do so.")
+@app_commands.describe(amount="How many recent messages to erase (default: 5).")
+async def wipe(interaction: discord.Interaction, amount: int = 5):
+    """Deletes a number of recent messages — restricted to admins or those with Manage Messages."""
+    # Check if user has admin or manage message permissions
+    if not interaction.user.guild_permissions.manage_messages and not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message(
+            "🚫 *Zexion closes his lexicon with a sharp snap.* 'Only those entrusted with order may cleanse the archives.'",
+            ephemeral=True
+        )
+        return
+
+    # Ensure it’s used in a text channel
+    if not isinstance(interaction.channel, discord.TextChannel):
+        await interaction.response.send_message(
+            "⚠️ *Zexion frowns slightly.* 'This spell functions only within the written halls — text channels, to be precise.'",
+            ephemeral=True
+        )
+        return
+
+    # Perform the purge
+    try:
+        deleted = await interaction.channel.purge(limit=amount + 1)  # include the command message
+        await interaction.response.send_message(
+            f"🕯️ *Zexion silently erases {len(deleted) - 1} entries from the archives...*",
+            ephemeral=True
+        )
+    except Exception as e:
+        await interaction.response.send_message(
+            f"❌ *Zexion grimaces.* 'The lexicon resisted the purge: {e}'",
+            ephemeral=True
+        )
+
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
