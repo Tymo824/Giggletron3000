@@ -1,5 +1,7 @@
 import os
 DISCORD_TOKEN = os.getenv("DISCORD_JOKE_TOKEN")
+import os, requests, zipfile, io
+FFMPEG_PATH = os.path.join("bin", "ffmpeg.exe")
 import discord
 from discord import app_commands
 from discord.ext import tasks
@@ -8,6 +10,21 @@ import requests
 import random
 from datetime import datetime, timezone
 import asyncio
+def ensure_ffmpeg():
+    if not os.path.exists(FFMPEG_PATH):
+        print("Downloading ffmpeg...")
+        os.makedirs("bin", exist_ok=True)
+        url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+        r = requests.get(url)
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        for name in z.namelist():
+            if name.endswith("ffmpeg.exe"):
+                z.extract(name, "bin")
+                os.rename(os.path.join("bin", name), FFMPEG_PATH)
+                break
+        print("✅ ffmpeg ready!")
+
+ensure_ffmpeg()
 # === Demyx The Jokester Jokes ===
 KH_MUSIC_JOKES = [
     # Kingdom Hearts jokes
@@ -387,6 +404,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
