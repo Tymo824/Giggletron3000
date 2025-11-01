@@ -163,8 +163,8 @@ def fetch_joke() -> str:
 async def on_ready():
     print(f"✅ Logged in as {bot.user}")
     post_joke_of_day.start()
-    await tree.sync()
-    print("🌐 Slash commands synced!")
+    await tree.sync(guild=None)  # Sync globally
+    print("🌐 Slash commands synced globally!")
 
 @tasks.loop(minutes=1)
 async def post_joke_of_day():
@@ -384,6 +384,7 @@ if __name__ == "__main__":
         bot.run(DISCORD_TOKEN)
 
         
+
 
 
 
