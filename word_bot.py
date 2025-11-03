@@ -499,25 +499,23 @@ async def riddle(interaction: discord.Interaction):
     # Pick a random entry safely
     entry = random.choice(RIDDLES)
 
-   # If it's a tuple or list, unpack up to 3 items safely
-if isinstance(entry, (tuple, list)):
-    question = entry[0]
-    answer = entry[1] if len(entry) > 1 else "Hmm... even I can’t recall the answer to that one."
-    hint = entry[2] if len(entry) > 2 else None
-else:
-    question = str(entry)
-    answer = "Hmm... even I can’t recall the answer to that one."
-    hint = None
+    # If it's a tuple or list, unpack up to 3 items safely
+    if isinstance(entry, (tuple, list)):
+        question = entry[0]
+        answer = entry[1] if len(entry) > 1 else "Hmm... even I can’t recall the answer to that one."
+        hint = entry[2] if len(entry) > 2 else None
+    else:
+        question = str(entry)
+        answer = "Hmm... even I can’t recall the answer to that one."
+        hint = None
 
-# Save both answer and hint
-ACTIVE_RIDDLES[interaction.user.id] = {"answer": answer, "hint": hint}
-
-    # Save the answer for later (your existing logic)
-ACTIVE_RIDDLES[interaction.user.id] = answer
+    # Save both answer and hint for this user
+    ACTIVE_RIDDLES[interaction.user.id] = {"answer": answer, "hint": hint}
 
     await interaction.response.send_message(
         f"🌀 *Zexion smirks.* '{question}'\n\n'Solve this, if your mind is sharp...'"
     )
+
 
 @tree.command(name="hint", description="Request a cryptic hint from Zexion about your current riddle.")
 async def hint(interaction: discord.Interaction):
@@ -693,6 +691,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
