@@ -513,7 +513,7 @@ else:
 ACTIVE_RIDDLES[interaction.user.id] = {"answer": answer, "hint": hint}
 
     # Save the answer for later (your existing logic)
-    ACTIVE_RIDDLES[interaction.user.id] = answer
+ACTIVE_RIDDLES[interaction.user.id] = answer
 
     await interaction.response.send_message(
         f"🌀 *Zexion smirks.* '{question}'\n\n'Solve this, if your mind is sharp...'"
@@ -693,6 +693,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
