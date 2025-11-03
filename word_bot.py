@@ -496,11 +496,24 @@ async def library(interaction: discord.Interaction):
 
 @tree.command(name="riddle", description="Zexion tests your mind with a riddle.")
 async def riddle(interaction: discord.Interaction):
-    question, answer = random.choice(RIDDLES)
+    # Pick a random entry safely
+    entry = random.choice(RIDDLES)
+
+    # If it's a tuple or list with 2 items, unpack normally
+    if isinstance(entry, (tuple, list)) and len(entry) == 2:
+        question, answer = entry
+    else:
+        # If it's just a string or malformed, make a fallback
+        question = str(entry)
+        answer = "Hmm... even I can’t recall the answer to that one."
+
+    # Save the answer for later (your existing logic)
     ACTIVE_RIDDLES[interaction.user.id] = answer
+
     await interaction.response.send_message(
         f"🌀 *Zexion smirks.* '{question}'\n\n'Solve this, if your mind is sharp...'"
     )
+
 @tree.command(name="hint", description="Request a cryptic hint from Zexion about your current riddle.")
 async def hint(interaction: discord.Interaction):
     # Check if user has a riddle active
@@ -667,6 +680,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
