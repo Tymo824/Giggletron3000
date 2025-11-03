@@ -370,6 +370,7 @@ async def setlist(interaction: discord.Interaction):
         description="Here’s what Demyx can do when he’s *in the groove!*",
         color=discord.Color.teal()
     )
+    embed.add_field(name="🗝️ /khjoke", value="Tells a Kingdom Hearts–themed joke!", inline=False)
     embed.add_field(name="😂 /joke", value="Tells a random joke — funny or not!", inline=False)
     embed.add_field(name="🔥 /roast", value="Roasts you or someone else brutally.", inline=False)
     embed.add_field(name="💨 /fadeout", value="Mods only — clears recent messages.", inline=False)
@@ -389,6 +390,7 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
 
 
 
