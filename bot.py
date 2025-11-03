@@ -106,7 +106,7 @@ KH_MUSIC_JOKES += [
     "Why did Demyx refuse to play Fortnite? Too much building — not enough chilling.",
     "Why did the Heartless win karaoke night? They had no soul but killer vocals.",
     "Why did Goofy win best rhythm gamer? Because he’s got perfect ‘goof-timing’.",
-    "Why did Xigbar rage quit VRChat? Too much perspective
+    "Why did Xigbar rage quit VRChat? Too much perspective."
 ]
 
 # === Demyx's Roasts ===
@@ -382,6 +382,7 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
 
 
 
