@@ -19,10 +19,7 @@ KH_MUSIC_JOKES = [
     "Why did Kairi join a band? She wanted to find her lost chords.",
     "Why did Goofy start a jazz trio? Because he already mastered the Goof-step.",
     "What’s Xigbar’s favorite song? 'Shot Through the Heart.'",
-]
-# --- Extra KH-Themed Jokes ---
-KH_MUSIC_JOKES += [
-    "What is Aqua and Ven’s favorite ride at Disney World? The Tower of Terra!",
+     "What is Aqua and Ven’s favorite ride at Disney World? The Tower of Terra!",
     "How come Master Xehanort was arrested? They got him on possession!",
     "How come Sora didn’t want to go on an almond diet? Because that’s just nuts…",
     "What is Jiminy Cricket’s least favorite song? No more bugs!!",
@@ -108,6 +105,7 @@ KH_MUSIC_JOKES += [
     "Why did Goofy win best rhythm gamer? Because he’s got perfect ‘goof-timing’.",
     "Why did Xigbar rage quit VRChat? Too much perspective."
 ]
+
 
 # === Demyx's Roasts ===
 DEMYX_ROASTS = [
@@ -274,11 +272,20 @@ async def post_joke_of_day():
         if channel:
             await channel.send(f"😂 **Joke of the Day** 😂\n{joke}\n{emote}")
 
-@tree.command(name="joke", description="Demyx tells a joke trying to be funny")
+@tree.command(name="joke", description="Demyx tells a random joke from the web 🎭")
 async def joke(interaction: discord.Interaction):
+    """Fetches a random general joke from JokeAPI (not KH-related)."""
     joke_text = fetch_joke()
     emote = random.choice(JOKE_EMOTES)
     await interaction.response.send_message(f"😂 **Random Joke** 😂\n{joke_text}\n{emote}")
+
+
+@tree.command(name="khjoke", description="Demyx tells a Kingdom Hearts–inspired joke 💙🗝️")
+async def khjoke(interaction: discord.Interaction):
+    """Pulls a random Kingdom Hearts joke from the list."""
+    joke_text = random.choice(KH_MUSIC_JOKES)
+    emote = random.choice(JOKE_EMOTES)
+    await interaction.response.send_message(f"🎸 **Kingdom Hearts Joke** 🎸\n{joke_text}\n{emote}")
 
 @tree.command(name="roast", description="Demyx roasts someone brutally 🔥")
 @app_commands.describe(user="Mention the user you want Demyx to roast")
@@ -382,6 +389,7 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
 
 
 
