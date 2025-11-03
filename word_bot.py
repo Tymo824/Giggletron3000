@@ -499,13 +499,18 @@ async def riddle(interaction: discord.Interaction):
     # Pick a random entry safely
     entry = random.choice(RIDDLES)
 
-    # If it's a tuple or list with 2 items, unpack normally
-    if isinstance(entry, (tuple, list)) and len(entry) == 2:
-        question, answer = entry
-    else:
-        # If it's just a string or malformed, make a fallback
-        question = str(entry)
-        answer = "Hmm... even I can’t recall the answer to that one."
+   # If it's a tuple or list, unpack up to 3 items safely
+if isinstance(entry, (tuple, list)):
+    question = entry[0]
+    answer = entry[1] if len(entry) > 1 else "Hmm... even I can’t recall the answer to that one."
+    hint = entry[2] if len(entry) > 2 else None
+else:
+    question = str(entry)
+    answer = "Hmm... even I can’t recall the answer to that one."
+    hint = None
+
+# Save both answer and hint
+ACTIVE_RIDDLES[interaction.user.id] = {"answer": answer, "hint": hint}
 
     # Save the answer for later (your existing logic)
     ACTIVE_RIDDLES[interaction.user.id] = answer
@@ -516,34 +521,42 @@ async def riddle(interaction: discord.Interaction):
 
 @tree.command(name="hint", description="Request a cryptic hint from Zexion about your current riddle.")
 async def hint(interaction: discord.Interaction):
-    # Check if user has a riddle active
-    active_riddle = ACTIVE_RIDDLES.get(interaction.user.id)
-    if not active_riddle:
-        await interaction.response.send_message("🕯️ *Zexion closes his lexicon.* 'You have no riddle to ponder, seeker of knowledge.'")
+    riddle_data = ACTIVE_RIDDLES.get(interaction.user.id)
+    if not riddle_data:
+        await interaction.response.send_message(
+            "🕯️ *Zexion closes his lexicon.* 'You have no riddle to ponder, seeker of knowledge.'"
+        )
         return
 
-    # Find the matching riddle in the list
-    for q, a, *rest in RIDDLES:
-        if a == active_riddle:
-            hint_text = rest[0] if rest else "🌀 *Zexion smirks.* 'No hint for this one... you must rely on wit alone.'"
-            await interaction.response.send_message(f"🔮 *Zexion sighs and murmurs:* '{hint_text}'")
-            return
-
-    await interaction.response.send_message("🌫️ *Zexion frowns.* 'The lexicon offers no clue for this riddle.'")
+    hint_text = riddle_data.get("hint")
+    if hint_text:
+        await interaction.response.send_message(f"🔮 *Zexion murmurs:* '{hint_text}'")
+    else:
+        await interaction.response.send_message(
+            "🌀 *Zexion smirks.* 'No hint for this one... you must rely on wit alone.'"
+        )
 
 @tree.command(name="answer", description="Attempt to solve Zexion’s riddle.")
 async def answer(interaction: discord.Interaction, guess: str):
-    answer = ACTIVE_RIDDLES.get(interaction.user.id)
-    if not answer:
-        await interaction.response.send_message("🕯️ *Zexion raises a brow.* 'You have no active riddle to solve.'")
+    riddle_data = ACTIVE_RIDDLES.get(interaction.user.id)
+    if not riddle_data:
+        await interaction.response.send_message(
+            "🕯️ *Zexion raises a brow.* 'You have no active riddle to solve.'"
+        )
         return
 
-    if guess.lower() in answer.lower():
-        await interaction.response.send_message(f"💫 *Zexion nods and smiles ever so slightly in your direction, almost as if he is proud, almost.* 'Correct. The answer was indeed {answer}.'")
+    correct_answer = riddle_data.get("answer", "")
+    if guess.lower().strip() in correct_answer.lower():
+        await interaction.response.send_message(
+            f"💫 *Zexion nods approvingly.* 'Correct. The answer was **{correct_answer}**.'"
+        )
     else:
-        await interaction.response.send_message(f"🌒 *Zexion scowls in disappointment, smacking you with his heavy Lexicon. You should feel ashamed.* 'Not quite. The answer was {answer}.'")
+        await interaction.response.send_message(
+            f"🌒 *Zexion sighs, shaking his head.* 'Not quite. The answer was **{correct_answer}**.'"
+        )
 
     del ACTIVE_RIDDLES[interaction.user.id]
+
 
 @tree.command(name="insight", description="Zexion shares a philosophical thought.")
 async def insight(interaction: discord.Interaction):
@@ -680,6 +693,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
