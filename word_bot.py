@@ -355,11 +355,11 @@ async def post_word_of_day():
     """Post Word of the Day at 9:00 AM EST (14:00 UTC)."""
     try:
         now_utc = datetime.now(timezone.utc)
-        print("⏰ Checking UTC time:", now)
-        if now.hour == 14 and now.minute == 0:
+        print("⏰ Checking UTC time:", now_utc)
+        if now_utc.hour == 14 and now_utc.minute == 0:
             channel = bot.get_channel(CHANNEL_ID)
             if channel:
-                intro = get_zexion_intro()  # 👈 pick Light/Dark intro
+                intro = get_zexion_intro()
                 word, definition = fetch_word_of_the_day()
                 message = f"{intro}\n\n📚 **Word of the Day**: **{word}**\n{definition}"
                 await channel.send(message)
@@ -667,6 +667,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
