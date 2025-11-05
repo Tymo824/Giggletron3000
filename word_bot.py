@@ -380,36 +380,52 @@ async def wotd(interaction: discord.Interaction):
   
 @tree.command(name="randomword", description="Zexion reveals a random word with Light or Dark energy.")
 async def randomword(interaction: discord.Interaction):
-    """Fetches a truly random word from Wordnik instead of the Word of the Day."""
+    """Fetches a truly random word and cleans up its definition."""
     intro = get_zexion_intro()
     
     try:
-        # Fetch random word from Wordnik API
-        url = f"https://api.wordnik.com/v4/words.json/randomWord"
+        # Fetch a random word
+        url = "https://api.wordnik.com/v4/words.json/randomWord"
         params = {"api_key": WORDNIK_API_KEY}
         response = requests.get(url, params=params, timeout=10)
 
-        if response.status_code == 200:
-            data = response.json()
-            word = data.get("word", "Unknown")
-
-            # Fetch definition for that random word
-            def_url = f"https://api.wordnik.com/v4/word.json/{word}/definitions"
-            def_params = {"limit": 1, "api_key": WORDNIK_API_KEY}
-            def_resp = requests.get(def_url, params=def_params, timeout=10)
-
-            if def_resp.status_code == 200:
-                defs = def_resp.json()
-                definition = defs[0].get("text", "No definition available.") if defs else "No definition found."
-            else:
-                definition = "Definition unavailable."
-
-            await interaction.response.send_message(f"{intro}\n\n📚 **Random Word**: **{word}**\n{definition}")
-        else:
+        if response.status_code != 200:
             await interaction.response.send_message("❌ Could not fetch a random word right now.")
+            return
+
+        data = response.json()
+        word = data.get("word", "Unknown")
+
+        # Fetch a clean definition
+        def_url = f"https://api.wordnik.com/v4/word.json/{word}/definitions"
+        def_params = {"limit": 1, "api_key": WORDNIK_API_KEY}
+        def_resp = requests.get(def_url, params=def_params, timeout=10)
+
+        if def_resp.status_code == 200:
+            defs = def_resp.json()
+            if defs:
+                raw_def = defs[0].get("text", "No definition available.")
+                # 🧼 Clean out HTML and Wordnik markup
+                definition = (
+                    raw_def.replace("<internalXref>", "")
+                    .replace("</internalXref>", "")
+                    .replace("&quot;", "\"")
+                    .replace("&apos;", "'")
+                    .replace("&amp;", "&")
+                )
+                definition = re.sub(r"<.*?>", "", definition).strip()
+            else:
+                definition = "No definition found."
+        else:
+            definition = "Definition unavailable."
+
+        await interaction.response.send_message(
+            f"{intro}\n\n📚 **Random Word**: **{word}**\n{definition}"
+        )
 
     except Exception as e:
         await interaction.response.send_message(f"⚠️ *Zexion frowns.* 'The lexicon glitched...'\n`{e}`")
+
 
 
 @tree.command(name="define", description="Define any word — Zexion consults his lexicon.")
@@ -719,6 +735,7 @@ async def wipe(interaction: discord.Interaction, amount: int = 5):
 
 # === Run Bot ===
 bot.run(DISCORD_TOKEN)
+
 
 
 
