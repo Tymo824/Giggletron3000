@@ -54,7 +54,7 @@ KH_MUSIC_JOKES = [
     "What song does the Organization sing to Vexen on his birthday? Freeze a jolly good fellow!",
     "Why is Halloweentown Donald so bad at telling lies? Cuz you can see right through him!",
     "Why did Roxas and Jack Skellington go to the ball together? Cuz they both had noBODY else to go with!",
-    "Jafar loves Thanksgiving. What’s his favorite holiday phrase? GOBBLE GOBBLE GOBBLE GA!"
+    "Jafar loves Thanksgiving. What’s his favorite holiday phrase? GOBBLE GOBBLE GOBBLE GA!",
     "Why did Sora refuse to play Dark Souls? He said he already died enough emotionally.",
     "What does Demyx call a failed concert? Kingdom Farts.",
     "Why did Goofy install antivirus? He got too many Heartless in his system.",
@@ -390,6 +390,7 @@ if __name__ == "__main__":
         print("Missing DISCORD_TOKEN environment variable.")
     else:
         bot.run(DISCORD_TOKEN)
+
 
 
 
