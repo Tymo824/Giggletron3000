@@ -1,6 +1,7 @@
 discord.py
 requests
 PyNaCl==1.5.0
-pip>=24.0
+
+
 
 
