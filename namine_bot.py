@@ -317,7 +317,7 @@ async def happybirthday(interaction: discord.Interaction, user: discord.Member):
     try:
         vc = await channel.connect()
     except discord.ClientException:
-        # Probably already connected in this guild – reuse that connection
+        # Maybe already connected in this guild – reuse that connection
         vc = discord.utils.get(client.voice_clients, guild=interaction.guild)
         if vc is None:
             await interaction.followup.send(
@@ -326,8 +326,19 @@ async def happybirthday(interaction: discord.Interaction, user: discord.Member):
             )
             return
 
-    # Create audio source from the mp3 file
-    audio_source = discord.FFmpegPCMAudio(BIRTHDAY_SONG_FILE)
+    # Try to build an audio source from the mp3 file
+    try:
+        audio_source = discord.FFmpegPCMAudio(BIRTHDAY_SONG_FILE)
+    except Exception as e:
+        await interaction.followup.send(
+            f"Something went wrong starting the song: `{e}`",
+            ephemeral=True,
+        )
+        try:
+            await vc.disconnect()
+        except Exception:
+            pass
+        return
 
     # Play if not already playing something
     if not vc.is_playing():
@@ -342,6 +353,7 @@ async def happybirthday(interaction: discord.Interaction, user: discord.Member):
         await vc.disconnect()
     except Exception:
         pass
+
 
 
 
