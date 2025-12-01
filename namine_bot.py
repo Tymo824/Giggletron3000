@@ -7,7 +7,7 @@ from datetime import datetime, timezone, time
 import discord
 from discord import app_commands
 from discord.ext import tasks
-
+import asyncio
 
 # -------------------------------------------------------
 # Quotes
@@ -142,6 +142,8 @@ NAMINE_BDAY_QUOTES = [
 
 BIRTHDAY_FILE = "birthdays.json"
 CONFIG_FILE = "birthday_config.json"
+BIRTHDAY_SONG_FILE = "happy_birthday.mp3"
+
 
 
 def load_json(path, default):
