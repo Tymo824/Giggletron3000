@@ -169,7 +169,7 @@ class NamineBot(discord.Client):
     def __init__(self):
         intents = discord.Intents.default()
         intents.members = True
-
+        intents.voice_states = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
 
@@ -280,13 +280,67 @@ async def setuserbirth(interaction: discord.Interaction, user: discord.Member, d
 
 @client.tree.command(
     name="happybirthday",
-    description="(Blank for now)"
+    description="Join the tagged user's VC and play a birthday song."
 )
-async def happybirthday(interaction: discord.Interaction):
+@app_commands.describe(user="The birthday person currently in a voice channel.")
+async def happybirthday(interaction: discord.Interaction, user: discord.Member):
+
+    # Make sure the file exists on disk
+    if not os.path.isfile(BIRTHDAY_SONG_FILE):
+        await interaction.response.send_message(
+            "📘 *Naminé looks worried.*\n"
+            "I can't find the birthday song file on the server…",
+            ephemeral=True,
+        )
+        return
+
+    # Check that the tagged user is in a voice channel
+    if not user.voice or not user.voice.channel:
+        await interaction.response.send_message(
+            f"📘 *Naminé tilts her head.*\n"
+            f"**{user.display_name}** isn't in a voice channel right now.",
+            ephemeral=True,
+        )
+        return
+
+    channel = user.voice.channel
+
+    # Let people know what's happening
     await interaction.response.send_message(
-        "This command will be added later.",
-        ephemeral=True
+        f"🌸 *Naminé quietly joins* {channel.mention} *to play a song for* {user.mention}…",
+        ephemeral=False,
     )
+
+    # Try to connect to the voice channel
+    try:
+        vc = await channel.connect()
+    except discord.ClientException:
+        # Probably already connected in this guild – reuse that connection
+        vc = discord.utils.get(client.voice_clients, guild=interaction.guild)
+        if vc is None:
+            await interaction.followup.send(
+                "…I couldn’t connect to the voice channel.",
+                ephemeral=True,
+            )
+            return
+
+    # Create audio source from the mp3 file
+    audio_source = discord.FFmpegPCMAudio(BIRTHDAY_SONG_FILE)
+
+    # Play if not already playing something
+    if not vc.is_playing():
+        vc.play(audio_source)
+
+    # Wait until the song finishes
+    while vc.is_playing():
+        await asyncio.sleep(1)
+
+    # Disconnect after playing
+    try:
+        await vc.disconnect()
+    except Exception:
+        pass
+
 
 
 @client.tree.command(
