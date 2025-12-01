@@ -376,7 +376,7 @@ async def daily_check():
 # -------------------------------------------------------
 
 if __name__ == "__main__":
-    TOKEN = os.getenv("DISCORD_TOKEN")
+    TOKEN = os.getenv("DISCORD_BIRTH_TOKEN")
     if not TOKEN:
-        raise RuntimeError("DISCORD_TOKEN environment variable not set.")
+        raise RuntimeError("DISCORD_BIRTH_TOKEN environment variable not set.")
     client.run(TOKEN)
